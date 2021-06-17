@@ -5,7 +5,6 @@ const port = 3000
 
 const usersBuffer = fs.readFileSync('./users.json')
 let users = JSON.parse(usersBuffer)
-console.log(users)
 
 app.use(express.json())
 
@@ -60,6 +59,47 @@ app.post('/api/v1/users/', (req, res) => {
     data: user,
     message: `Succesffuly created data for user ${username}`,
     status: 'ok'
+  })
+})
+
+app.put('/api/v1/users/:username', (req, res) => {
+  const {username} = req.params
+  const {name} = req.body
+  for (let user of users) {
+    if (user.username === username) {
+      user.name = name
+      fs.writeFileSync('./users.json', JSON.stringify(users))
+      return res.json({
+        data: user,
+        message: `User updated successfully!`,
+        status: 'ok'
+      })
+    }
+  }
+  res.json({
+    data: null,
+    message: `User not found`,
+    status: 'not found'
+  })
+})
+
+app.delete('/api/v1/users/:username', (req, res) => {
+  const {username} = req.params
+  for (let user of users) {
+    if (user.username === username) {
+      users.splice(user.id-1, 1)
+      fs.writeFileSync('./users.json', JSON.stringify(users))
+      return res.json({
+        data: user,
+        message: `User deleted successfully!`,
+        status: 'ok'
+      })
+    }
+  }
+  res.json({
+    data: null,
+    message: `User not found`,
+    status: 'not found'
   })
 })
 
